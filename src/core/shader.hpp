@@ -2,19 +2,8 @@
 #define SHADER_HPP_
 
 #include <glad/glad.h>
-#include "file.hpp"
-#include "output.hpp"
 
-class Shader {
-public:
-  Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
-  ~Shader();
-  GLint GetUniformLocation(const char* name);
-  
-  GLuint program;
-  GLint modelLoc;
-  GLint viewLoc;
-  GLint projectionLoc;
-};
+GLuint CreateShaderProgram(const char* vertexShaderPath, const char* fragmentShaderPath);
+GLint GetUniformLocation(GLuint program, const char* name);
 
 #endif

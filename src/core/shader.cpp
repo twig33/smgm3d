@@ -4,7 +4,7 @@
 #include "file.hpp"
 #include "output.hpp"
 
-GLint Shader::GetUniformLocation(const char* name){
+GLint GetUniformLocation(GLuint program, const char* name){
   int loc = glGetUniformLocation(program, name);
   if (loc == -1){
     Output::stream << "Shader: Couldn't get location of uniform \"" << name << "\"\n";
@@ -13,14 +13,16 @@ GLint Shader::GetUniformLocation(const char* name){
   return loc;
 }
 
-Shader::Shader (const char* vertexShaderPath, const char* fragmentShaderPath){
+GLuint CreateShaderProgram (const char* vertexShaderPath, const char* fragmentShaderPath){
+  GLuint program;
+  
   if (!FileExists(vertexShaderPath)){
     Output::stream << "Vertex shader source file not found\n";
-    throw std::runtime_error("");
+    return 0;
   }
   if (!FileExists(fragmentShaderPath)){
     Output::stream << "Fragment shader source file not found\n";
-    throw std::runtime_error("");
+    return 0;
   }
       
   int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -49,7 +51,7 @@ Shader::Shader (const char* vertexShaderPath, const char* fragmentShaderPath){
     Output::stream << "Vertex shader compilation failed\n";
     Output::stream << infoLog;
     Output::stream << "\n";
-    throw std::runtime_error("");
+    return 0;
   }
       
   glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
@@ -62,7 +64,7 @@ Shader::Shader (const char* vertexShaderPath, const char* fragmentShaderPath){
     Output::stream << "Fragment shader compilation failed\n";
     Output::stream << infoLog;
     Output::stream << "\n";
-    throw std::runtime_error("");
+    return 0;
   }
       
   program = glCreateProgram();
@@ -80,16 +82,8 @@ Shader::Shader (const char* vertexShaderPath, const char* fragmentShaderPath){
     Output::stream << "Shader program linking failed\n";
     Output::stream << infoLog;
     Output::stream << "\n";
-    throw std::runtime_error("");
+    return 0;
   }
-  
-  modelLoc = GetUniformLocation("model");
-  viewLoc = GetUniformLocation("view");
-  projectionLoc = GetUniformLocation("projection");
-  if (modelLoc == -1 || viewLoc == -1 || projectionLoc == -1)
-    throw std::runtime_error("");
-}
 
-Shader::~Shader(){
-  glDeleteProgram(program);
+  return program;
 }

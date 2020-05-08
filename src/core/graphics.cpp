@@ -41,13 +41,20 @@ namespace Graphics {
       1, 2, 3
     };
 
+    /* Matrices */
     glm::mat4 model= glm::mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    static Shader* shader;
-    
+    /* Shader */
+    static GLuint shaderProgram;
+    static GLint modelLoc;
+    static GLint viewLoc;
+    static GLint projectionLoc;
+
+    /* Callback for window resizing */
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height){
+      /* Set the new width and height */
       glViewport(0, 0, width, height);
     }
     
@@ -120,14 +127,29 @@ namespace Graphics {
 
     glViewport(0, 0, windowWidth, windowHeight);
 
+    view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+		       glm::vec3(0.0f, 0.0f, 0.0f),
+		       glm::vec3(0.0f, 1.0f, 0.0f));
+
+    projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.1f, 100.0f);
+    
     /* Initialize shader */
-    try {
-      shader = new Shader("shader.vs", "shader.fs");
-    }
-    catch (std::runtime_error){
-      Output::stream << "Shader initialization failed\n";
+    shaderProgram = CreateShaderProgram("shader.vs", "shader.fs");
+    if (!shaderProgram)
       return 0;
-    }
+
+    modelLoc = GetUniformLocation(shaderProgram, "model");
+    projectionLoc = GetUniformLocation(shaderProgram, "projection");
+    viewLoc = GetUniformLocation(shaderProgram, "view");
+
+    if (modelLoc == -1 || projectionLoc == -1 || viewLoc == -1)
+      return 0;
+
+    glUseProgram(shaderProgram);
+    
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left  
          0.5f, -0.5f, 0.0f, // right 
@@ -170,7 +192,7 @@ namespace Graphics {
   }
   
   int Quit(){
-    delete shader;
+    glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 1;
   }
@@ -181,10 +203,10 @@ namespace Graphics {
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Draw */
-    glUseProgram(shader->program);
+    glUseProgram(shaderProgram);
     glBindVertexArray(triangleVAO);
     for (int i = 0; i < triangles.size(); ++i){
-      glUniformMatrix4fv(shader->modelLoc, 1, GL_FALSE, glm::value_ptr(triangles[i].model));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(triangles[i].model));
       glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
