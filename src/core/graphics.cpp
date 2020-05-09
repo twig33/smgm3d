@@ -6,6 +6,7 @@
 #include "graphics.hpp"
 #include "shader.hpp"
 #include "output.hpp"
+#include "map.hpp"
 
 namespace Graphics {
 
@@ -19,7 +20,7 @@ namespace Graphics {
       glm::mat4 model = glm::mat4(1.0f);
     };
 
-    std::vector<Triangle> triangles;
+    IntMap<Triangle> triangles;
     
     float triangleVertices[] = {
       -0.5f, -0.5f, 0.0f,
@@ -42,9 +43,12 @@ namespace Graphics {
     };
 
     /* Matrices */
-    glm::mat4 model= glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
+    //camera
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+				 glm::vec3(0.0f, 0.0f, 0.0f),
+				 glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    glm::mat4 projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.1f, 100.0f);
 
     /* Shader */
     static GLuint shaderProgram;
@@ -81,27 +85,11 @@ namespace Graphics {
 
   int CreateTriangle(){
     Triangle triangle;
-    if (!triangles.empty()){
-      triangle.id = triangles.back().id + 1;
-    }
-    else {
-      triangle.id = 0;
-    }
-    triangles.push_back(triangle);
-    return triangle.id;
+    return triangles.Insert(triangle);
   }
 
   void TranslateTriangle(int id, float x, float y, float z){
-    int index = -1;
-    for (int i = 0; i < triangles.size(); ++i){
-      if (triangles[i].id == id){
-	index = i;
-	break;
-      }
-    }
-    if (index == -1)
-      return;
-    triangles[index].model = glm::translate(triangles[index].model, glm::vec3(x, y, z));
+    triangles.GetByKey(id).model = glm::translate(triangles.GetByKey(id).model, glm::vec3(x, y, z));
   }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
@@ -126,12 +114,6 @@ namespace Graphics {
     }
 
     glViewport(0, 0, windowWidth, windowHeight);
-
-    view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-		       glm::vec3(0.0f, 0.0f, 0.0f),
-		       glm::vec3(0.0f, 1.0f, 0.0f));
-
-    projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.1f, 100.0f);
     
     /* Initialize shader */
     shaderProgram = CreateShaderProgram("shader.vs", "shader.fs");
@@ -149,7 +131,8 @@ namespace Graphics {
     
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-    
+
+    /* Initialize triangle */
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left  
          0.5f, -0.5f, 0.0f, // right 
