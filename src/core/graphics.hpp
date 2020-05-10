@@ -2,10 +2,10 @@
 #define GRAPHICS_HPP_
 
 #include <GLFW/glfw3.h>
+#include "transform.hpp"
 
 namespace Graphics {
-  int CreateTriangle();
-  void TranslateTriangle(int id, float x, float y, float z);
+  int CreateTriangle(const Transform * transform);
   
   GLFWwindow* GetWindow();
   int WindowShouldClose();

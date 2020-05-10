@@ -1,4 +1,3 @@
-#include <vector>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,9 +14,10 @@ namespace Graphics {
     static bool inited = false;
     static GLFWwindow* window;
 
-    struct Triangle {
-      int id;
-      glm::mat4 model = glm::mat4(1.0f);
+    class Triangle {
+    public:
+      Triangle (const Transform * transform) : transform(transform) {};
+      const Transform * transform; 
     };
 
     IntMap<Triangle> triangles;
@@ -83,13 +83,8 @@ namespace Graphics {
 
   }
 
-  int CreateTriangle(){
-    Triangle triangle;
-    return triangles.Insert(triangle);
-  }
-
-  void TranslateTriangle(int id, float x, float y, float z){
-    triangles.GetByKey(id).model = glm::translate(triangles.GetByKey(id).model, glm::vec3(x, y, z));
+  int CreateTriangle(const Transform * transform){
+    return triangles.Insert(Triangle(transform));
   }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
@@ -186,16 +181,16 @@ namespace Graphics {
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Draw */
-    glUseProgram(shaderProgram);
+    //glUseProgram(shaderProgram);
     glBindVertexArray(triangleVAO);
     for (int i = 0; i < triangles.size(); ++i){
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(triangles[i].model));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(triangles[i].transform->LocalToWorld()));
       glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    return 1;
+    //return 1;
   }
 
 
