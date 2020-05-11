@@ -5,7 +5,13 @@
 #include <glad/glad.h>
 
 namespace Resources {
-  GLuint GetVBO(unsigned int index);
+  struct MeshData {
+    GLuint VBO;
+    GLuint EBO;
+    unsigned long numIndices;
+  };
+  
+  MeshData GetMeshData(unsigned int index);
   GLuint GetTexture(unsigned int index);
   int Load();
   int Free();

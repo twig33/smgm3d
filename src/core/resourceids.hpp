@@ -4,6 +4,7 @@
 namespace Resources {
   enum {
 	MESH_TRIANGLE,
+	MESH_SQUARE,
 	MESHES_SIZE
   };
 

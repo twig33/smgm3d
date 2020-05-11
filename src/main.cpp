@@ -29,7 +29,7 @@ int main()
   std::vector<Object> objects;
   
   for (int i = 0; i < numTriangles; ++i){
-    objects.push_back(Object(Graphics::CreateRenderable(Resources::MESH_TRIANGLE, Resources::TEXTURE_DEFAULT)));
+    objects.push_back(Object(Graphics::CreateRenderable(Resources::MESH_SQUARE, Resources::TEXTURE_DEFAULT)));
     objects.back().speedX += 0.1f * i;
     objects.back().speedY -= 0.01f * i;
     Graphics::UpdateModel(objects[i].triangle, objects[i].transform.LocalToWorld());

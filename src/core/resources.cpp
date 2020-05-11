@@ -6,17 +6,37 @@
 
 namespace Resources {
   namespace {
-    GLuint VBOs[MESHES_SIZE];
+    struct RawMeshData {
+      unsigned long verticesSize;
+      float* vertices;
+      unsigned long indicesSize;
+      unsigned int* indices;
+    };
+
+    static float triangleVertices[] = {-0.5f, -0.5f, 0.0f,
+				        0.5f, -0.5f, 0.0f,
+				        0.0f, 0.5f, 0.0f};
+
+    static unsigned int triangleIndices[] = {0, 1, 2};
+    
+    static float squareVertices[] = {0.5f, 0.5f, 0.0f, // top right
+				     0.5f, -0.5f, 0.0f, // bottom right
+				    -0.5f, -0.5f, 0.0f, // bottom left
+				    -0.5f, 0.5f, 0.0f // top left
+    };
+    
+    static unsigned int squareIndices[] = {0, 1, 3,
+					   1, 2, 3};
+
+    RawMeshData rawMeshData[MESHES_SIZE] = {[MESH_TRIANGLE] = {sizeof(triangleVertices), triangleVertices,
+							       sizeof(triangleIndices), triangleIndices},
+					    [MESH_SQUARE] = {sizeof(squareVertices), squareVertices,
+							     sizeof(squareIndices), squareIndices}};
+    
+    MeshData meshData[MESHES_SIZE];
     GLuint textures[TEXTURES_SIZE];
 
     static const char* texturePaths[TEXTURES_SIZE] = {[TEXTURE_DEFAULT] = "brickwall.png"};
-    static const float vertexData[MESHES_SIZE][9] =
-      {
-       [MESH_TRIANGLE] =
-       {-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f }
-      };
     
     GLuint LoadTexture(const char* path){
       GLuint texture;
@@ -48,7 +68,7 @@ namespace Resources {
 	Output::stream << "Resources: Error couldn't load default texture\n";
 	return 0;
       }
-      for (int i = 0; i < TEXTURES_SIZE; ++i){
+      for (int i = TEXTURE_DEFAULT+1; i < TEXTURES_SIZE; ++i){
 	textures[i] = LoadTexture(texturePaths[i]);
 	if (!textures[i]){
 	  Output::stream << "Resources: Couldn't load texture with path " << texturePaths[i] << "\n";
@@ -60,11 +80,21 @@ namespace Resources {
     }
 
     int LoadMeshes(){
-      glGenBuffers(MESHES_SIZE, VBOs);
       for (int i = 0; i < MESHES_SIZE; ++i){
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData[i]), vertexData[i], GL_STATIC_DRAW);
+	glGenBuffers(1, &meshData[i].VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, meshData[i].VBO);
+	glBufferData(GL_ARRAY_BUFFER, rawMeshData[i].verticesSize, rawMeshData[i].vertices, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &meshData[i].EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshData[i].EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, rawMeshData[i].indicesSize, rawMeshData[i].indices, GL_STATIC_DRAW);
+
+	meshData[i].numIndices = rawMeshData[i].indicesSize / sizeof(unsigned int);
       }
+      
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+      
       return 1;
     }
 
@@ -74,16 +104,13 @@ namespace Resources {
     }
 
     int FreeMeshes(){
-      glDeleteBuffers(MESHES_SIZE, VBOs);
+      
       return 1;
     }
   }
 
-  GLuint GetVBO(unsigned int index){
-    if (index >= MESHES_SIZE)
-      return 0;
-    
-    return VBOs[index];
+  MeshData GetMeshData(unsigned int index){
+    return meshData[index];
   }
   
   GLuint GetTexture(unsigned int index){

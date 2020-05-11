@@ -18,8 +18,9 @@ namespace Graphics {
 
     class Renderable {
     public:
-      Renderable(GLint VAO, GLuint texture) : VAO(VAO), texture(texture) {};
-      
+      Renderable(GLint VAO, GLuint texture, GLuint numIndices) : VAO(VAO), texture(texture), numIndices(numIndices) {};
+
+      GLuint numIndices;
       GLuint VAO;
       GLuint texture;
       glm::mat4 model;
@@ -77,7 +78,7 @@ namespace Graphics {
     if (mesh > Resources::MESHES_SIZE || texture > Resources::TEXTURES_SIZE)
       return 0;
     
-    return objects.Insert(Renderable(VAOs[mesh], Resources::GetTexture(texture)));
+    return objects.Insert(Renderable(VAOs[mesh], Resources::GetTexture(texture), Resources::GetMeshData(mesh).numIndices));
   }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
@@ -130,15 +131,16 @@ namespace Graphics {
     for (int i = 0; i < Resources::MESHES_SIZE; ++i){
       glBindVertexArray(VAOs[i]);
 
-      glBindBuffer(GL_ARRAY_BUFFER, Resources::GetVBO(i));
-
+      glBindBuffer(GL_ARRAY_BUFFER, Resources::GetMeshData(i).VBO);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Resources::GetMeshData(i).EBO);
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
       glEnableVertexAttribArray(0);
-
-      glBindBuffer(GL_ARRAY_BUFFER, 0); 
-      glBindVertexArray(0);
     }
-    
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     inited = true;
     return 1;
   }
@@ -176,7 +178,7 @@ namespace Graphics {
       glBindTexture(GL_TEXTURE_2D, objects[i].texture);
       glBindVertexArray(objects[i].VAO);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(objects[i].model));
-      glDrawArrays(GL_TRIANGLES, 0, 3);
+      glDrawElements(GL_TRIANGLES, objects[i].numIndices, GL_UNSIGNED_INT, 0);
     }
 
     glfwSwapBuffers(window);
