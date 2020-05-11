@@ -2,7 +2,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include "graphics.hpp"
+#include "resources.hpp"
 #include "shader.hpp"
 #include "output.hpp"
 #include "map.hpp"
@@ -14,33 +16,17 @@ namespace Graphics {
     static bool inited = false;
     static GLFWwindow* window;
 
-    class Triangle {
+    class Renderable {
     public:
-      Triangle (const Transform * transform) : transform(transform) {};
-      const Transform * transform; 
+      Renderable(GLint VAO, GLuint texture) : VAO(VAO), texture(texture) {};
+      
+      GLuint VAO;
+      GLuint texture;
+      glm::mat4 model;
     };
 
-    IntMap<Triangle> triangles;
-    
-    float triangleVertices[] = {
-      -0.5f, -0.5f, 0.0f,
-       0.5f, -0.5f, 0.0f,
-       0.0f, 0.5f, 0.0f
-    };
-
-    unsigned int triangleVAO;
-
-    float squareVertices[] = {
-      0.5f, 0.5f, 0.0f,
-      0.5f, -0.5f, 0.0f,
-     -0.5f, -0.5f, 0.0f,
-     -0.5f, 0.5f, 0.0f
-    };
-
-    unsigned int squareIndices[] = {
-      0, 1, 3,
-      1, 2, 3
-    };
+    GLuint VAOs[Resources::MESHES_SIZE];
+    IntMap<Renderable> objects;
 
     /* Matrices */
     //camera
@@ -83,8 +69,15 @@ namespace Graphics {
 
   }
 
-  int CreateTriangle(const Transform * transform){
-    return triangles.Insert(Triangle(transform));
+  void UpdateModel(int id, glm::mat4 model){
+    objects.GetByKey(id).model = model;
+  }
+  
+  int CreateRenderable(int mesh, int texture){
+    if (mesh > Resources::MESHES_SIZE || texture > Resources::TEXTURES_SIZE)
+      return 0;
+    
+    return objects.Insert(Renderable(VAOs[mesh], Resources::GetTexture(texture)));
   }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
@@ -109,6 +102,7 @@ namespace Graphics {
     }
 
     glViewport(0, 0, windowWidth, windowHeight);
+    glfwSwapInterval(0);
     
     /* Initialize shader */
     shaderProgram = CreateShaderProgram("shader.vs", "shader.fs");
@@ -127,27 +121,23 @@ namespace Graphics {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    /* Initialize triangle */
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
-    }; 
+    if (!Resources::Load()){
+      Output::stream << "Graphics: Resource load failed\n";
+      return 0;
+    }
+    glGenVertexArrays(Resources::MESHES_SIZE, VAOs);
 
-    unsigned int VBO;
-    glGenVertexArrays(1, &triangleVAO);
-    glGenBuffers(1, &VBO);
-    
-    glBindVertexArray(triangleVAO);
+    for (int i = 0; i < Resources::MESHES_SIZE; ++i){
+      glBindVertexArray(VAOs[i]);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+      glBindBuffer(GL_ARRAY_BUFFER, Resources::GetVBO(i));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+      glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0); 
+      glBindBuffer(GL_ARRAY_BUFFER, 0); 
+      glBindVertexArray(0);
+    }
     
     inited = true;
     return 1;
@@ -177,14 +167,15 @@ namespace Graphics {
   
   int Update(){
     /* Clear the screen */
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Draw */
     //glUseProgram(shaderProgram);
-    glBindVertexArray(triangleVAO);
-    for (int i = 0; i < triangles.size(); ++i){
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(triangles[i].transform->LocalToWorld()));
+    for (int i = 0; i < objects.size(); ++i){
+      glBindTexture(GL_TEXTURE_2D, objects[i].texture);
+      glBindVertexArray(objects[i].VAO);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(objects[i].model));
       glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 

@@ -8,6 +8,8 @@ template<typename T>
 class IntMap {
 public:
   T& GetByKey(unsigned int key);
+  void EraseByKey(unsigned int key);
+  void erase(unsigned int index);
   unsigned int Insert(T value);
   std::size_t size() const;
   T& operator[](std::size_t n);

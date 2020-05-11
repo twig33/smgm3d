@@ -5,8 +5,8 @@
 #include "transform.hpp"
 
 namespace Graphics {
-  int CreateTriangle(const Transform * transform);
-  
+  int CreateRenderable(int mesh, int texture);
+  void UpdateModel(int id, glm::mat4 model);
   GLFWwindow* GetWindow();
   int WindowShouldClose();
   int Update();

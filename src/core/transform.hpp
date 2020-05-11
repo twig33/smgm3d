@@ -5,14 +5,14 @@
 
 class Transform {
 public:
-  const glm::mat4& LocalToWorld() const;
+  glm::mat4 LocalToWorld() const;
 
   void SetPosition (glm::vec3 p);
-  const glm::vec3& GetPosition() const;
+  glm::vec3 GetPosition() const;
   void SetEulerAngles (glm::vec3 r);
-  const glm::vec3& GetRotation() const;
+  glm::vec3 GetEulerAngles() const;
   void SetScale (glm::vec3 s);
-  const glm::vec3& GetScale() const;
+  glm::vec3 GetScale() const;
 
   void Translate(glm::vec3 t);
   void RotateEulerAngles(glm::vec3 r);

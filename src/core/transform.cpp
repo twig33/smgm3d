@@ -1,10 +1,18 @@
-#include "transform.hpp"
+#include <math.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-const glm::mat4& Transform::LocalToWorld() const {
+#include "transform.hpp"
+
+static void EulerAnglesMod360(glm::vec3& eulerAngles){
+  eulerAngles.x = fmod(eulerAngles.x, 360);
+  eulerAngles.y = fmod(eulerAngles.y, 360);
+  eulerAngles.z = fmod(eulerAngles.z, 360);
+}
+
+glm::mat4 Transform::LocalToWorld() const {
   return model;
 }
 
@@ -18,19 +26,20 @@ void Transform::SetPosition (glm::vec3 p){
   UpdateModel();
 }
 
-const glm::vec3& Transform::GetPosition() const {
+glm::vec3 Transform::GetPosition() const {
   return position;
 }
 
 void Transform::SetEulerAngles (glm::vec3 r){
   rotation = r;
+  EulerAnglesMod360(rotation);
   rotationMat = glm::rotate(glm::mat4(1.0f), glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
   rotationMat = glm::rotate(rotationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
   rotationMat = glm::rotate(rotationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0));
   UpdateModel();
 }
 
-const glm::vec3& Transform::GetRotation() const {
+glm::vec3 Transform::GetEulerAngles() const {
   return rotation;
 }
 
@@ -40,7 +49,7 @@ void Transform::SetScale (glm::vec3 s) {
   UpdateModel();
 }
 
-const glm::vec3& Transform::GetScale() const {
+glm::vec3 Transform::GetScale() const {
   return scale;
 }
 
@@ -52,6 +61,7 @@ void Transform::Translate(glm::vec3 t) {
 
 void Transform::RotateEulerAngles(glm::vec3 r) {
   rotation += r;
+  EulerAnglesMod360(rotation);
   rotationMat = glm::rotate(rotationMat, glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
   rotationMat = glm::rotate(rotationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
   rotationMat = glm::rotate(rotationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0));  
