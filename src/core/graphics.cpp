@@ -103,7 +103,7 @@ namespace Graphics {
     }
 
     glViewport(0, 0, windowWidth, windowHeight);
-    glfwSwapInterval(0);
+    //glfwSwapInterval(0);
     
     /* Initialize shader */
     shaderProgram = CreateShaderProgram("shader.vs", "shader.fs");
@@ -133,8 +133,10 @@ namespace Graphics {
 
       glBindBuffer(GL_ARRAY_BUFFER, Resources::GetMeshData(i).VBO);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Resources::GetMeshData(i).EBO);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
       glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
     }
 
     glBindVertexArray(0);

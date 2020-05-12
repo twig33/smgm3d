@@ -1,7 +1,8 @@
-#include "resources.hpp"
-#include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <glad/glad.h>
+
+#include "resources.hpp"
 #include "output.hpp"
 
 namespace Resources {
@@ -13,16 +14,16 @@ namespace Resources {
       unsigned int* indices;
     };
 
-    static float triangleVertices[] = {-0.5f, -0.5f, 0.0f,
-				        0.5f, -0.5f, 0.0f,
-				        0.0f, 0.5f, 0.0f};
+    static float triangleVertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, 1.0f,
+				       0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+				       0.0f, 0.5f, 0.0f, 1.0f, 0.0f};
 
     static unsigned int triangleIndices[] = {0, 1, 2};
     
-    static float squareVertices[] = {0.5f, 0.5f, 0.0f, // top right
-				     0.5f, -0.5f, 0.0f, // bottom right
-				    -0.5f, -0.5f, 0.0f, // bottom left
-				    -0.5f, 0.5f, 0.0f // top left
+    static float squareVertices[] = {0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // top right
+				     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+				     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,// bottom left
+				     -0.5f, 0.5f, 0.0f, 0.0f, 1.0f // top left 
     };
     
     static unsigned int squareIndices[] = {0, 1, 3,
@@ -36,20 +37,25 @@ namespace Resources {
     MeshData meshData[MESHES_SIZE];
     GLuint textures[TEXTURES_SIZE];
 
-    static const char* texturePaths[TEXTURES_SIZE] = {[TEXTURE_DEFAULT] = "brickwall.png"};
+    static const char* texturePaths[TEXTURES_SIZE] = {[TEXTURE_DEFAULT] = "brickwall.jpg"};
     
     GLuint LoadTexture(const char* path){
       GLuint texture;
       glGenTextures(1, &texture);
       glBindTexture(GL_TEXTURE_2D, texture);
       
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // set the texture wrapping parameters
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // set texture filtering parameters
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      // load image, create texture and generate mipmaps
 
       int width, height, nrChannels;
-      unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
+      unsigned char *data = stbi_load(path, &width, &height, &nrChannels, STBI_rgb);
+      Output::stream << path << " nrChannels " << nrChannels << '\n';
       if (!data){
 	return 0;
       }
@@ -63,6 +69,8 @@ namespace Resources {
     }
     
     int LoadTextures(){
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      
       textures[TEXTURE_DEFAULT] = LoadTexture(texturePaths[TEXTURE_DEFAULT]);
       if (!textures[TEXTURE_DEFAULT]){
 	Output::stream << "Resources: Error couldn't load default texture\n";
