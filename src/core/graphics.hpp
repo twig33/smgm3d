@@ -5,7 +5,7 @@
 #include "transform.hpp"
 
 namespace Graphics {
-  int CreateRenderable(int mesh, int texture);
+  int CreateRenderable(const char* mesh, const char* texture);
   void UpdateModel(int id, glm::mat4 model);
   GLFWwindow* GetWindow();
   int WindowShouldClose();

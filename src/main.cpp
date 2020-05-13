@@ -5,16 +5,15 @@
 #include "core/input.hpp"
 #include "core/output.hpp"
 #include "core/mysleep.h"
-#include "core/resourceids.hpp"
 
-static const int numTriangles = 10;
+static const int numObjects = 50;
 
 class Object {
 public:
-  Object(int triangle) : triangle(triangle) {};
+  Object(int object) : object(object) {};
   float speedX = 1.0f;
   float speedY = 0.7f;
-  int triangle;
+  int object;
   Transform transform;
 };
   
@@ -28,29 +27,24 @@ int main()
 
   std::vector<Object> objects;
   
-  for (int i = 0; i < numTriangles; ++i){
-    objects.push_back(Object(Graphics::CreateRenderable(Resources::MESH_SQUARE, Resources::TEXTURE_DEFAULT)));
+  for (int i = 0; i < numObjects; ++i){
+    objects.push_back(Object(Graphics::CreateRenderable("gamer", "default")));
+    objects.back().transform.SetScale(glm::vec3(0.1f,0.1f,0.1f));
     objects.back().speedX += 0.1f * i;
     objects.back().speedY -= 0.01f * i;
-    Graphics::UpdateModel(objects[i].triangle, objects[i].transform.LocalToWorld());
+    Graphics::UpdateModel(objects[i].object, objects[i].transform.LocalToWorld());
   }
   
   float bound = 2.0f;
 
-  float lastTime = glfwGetTime();
-  int fpsReportFrameInterval = 500;
+  float lastTime = glfwGetTime() - 1.0f/60.0f;
   
   while (!quit && !Graphics::WindowShouldClose()){
     /* Calculate deltatime */
     float dt = glfwGetTime() - lastTime;
     lastTime = glfwGetTime();
-
-    if (dt > 0){
-      Output::stream << "FPS " << 1/dt << '\n';
-      fpsReportFrameInterval = 500;
-    }
     
-    for (int i = 0; i < numTriangles; ++i){
+    for (int i = 0; i < numObjects; ++i){
       if (objects[i].speedX > 0) {
 	if (objects[i].transform.GetPosition().x > bound) {
 	  objects[i].speedX = -objects[i].speedX;
@@ -74,7 +68,7 @@ int main()
     
       objects[i].transform.Translate(glm::vec3(objects[i].speedX, objects[i].speedY, 0.0f) * dt);
       objects[i].transform.RotateEulerAngles(glm::vec3(10.0f, 5.0f, 0.0f) * objects[i].speedX * dt * 10.0f);
-      Graphics::UpdateModel(objects[i].triangle, objects[i].transform.LocalToWorld());
+      Graphics::UpdateModel(objects[i].object, objects[i].transform.LocalToWorld());
     }
     if (Input::GetKey(GLFW_KEY_ESCAPE)){
       quit = true;

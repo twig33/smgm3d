@@ -1,3 +1,6 @@
+#include <map>
+#include <vector>
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -26,7 +29,7 @@ namespace Graphics {
       glm::mat4 model;
     };
 
-    GLuint VAOs[Resources::MESHES_SIZE];
+    std::map<std::string, GLuint> VAOs;
     IntMap<Renderable> objects;
 
     /* Matrices */
@@ -74,10 +77,7 @@ namespace Graphics {
     objects.GetByKey(id).model = model;
   }
   
-  int CreateRenderable(int mesh, int texture){
-    if (mesh > Resources::MESHES_SIZE || texture > Resources::TEXTURES_SIZE)
-      return 0;
-    
+  int CreateRenderable(const char* mesh, const char* texture){
     return objects.Insert(Renderable(VAOs[mesh], Resources::GetTexture(texture), Resources::GetMeshData(mesh).numIndices));
   }
   
@@ -103,6 +103,7 @@ namespace Graphics {
     }
 
     glViewport(0, 0, windowWidth, windowHeight);
+    glEnable(GL_DEPTH_TEST);
     //glfwSwapInterval(0);
     
     /* Initialize shader */
@@ -126,15 +127,21 @@ namespace Graphics {
       Output::stream << "Graphics: Resource load failed\n";
       return 0;
     }
-    glGenVertexArrays(Resources::MESHES_SIZE, VAOs);
 
-    for (int i = 0; i < Resources::MESHES_SIZE; ++i){
-      glBindVertexArray(VAOs[i]);
+    for (int i = 0; i < Resources::MeshCount(); ++i){
+      glGenVertexArrays(1, &VAOs[Resources::MeshNames()[i]]);
+      glBindVertexArray(VAOs[Resources::MeshNames()[i]]);
 
-      glBindBuffer(GL_ARRAY_BUFFER, Resources::GetMeshData(i).VBO);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Resources::GetMeshData(i).EBO);
+      /* Bind buffers */
+      glBindBuffer(GL_ARRAY_BUFFER, Resources::GetMeshData(Resources::MeshNames()[i]).VBO);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Resources::GetMeshData(Resources::MeshNames()[i]).EBO);
+
+      /* Create the vertex attributes */
+      /* 5 is kind of a magic number, I'll find a place to define it in a const variable later */
+      /* 5 floats -- 3 for the vertex coord, 2 for the texture coord */
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
       glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
+      
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
     }
@@ -164,6 +171,7 @@ namespace Graphics {
   }
   
   int Quit(){
+    Resources::Free();
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 1;
@@ -172,8 +180,8 @@ namespace Graphics {
   int Update(){
     /* Clear the screen */
     //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     /* Draw */
     //glUseProgram(shaderProgram);
     for (int i = 0; i < objects.size(); ++i){
@@ -185,7 +193,7 @@ namespace Graphics {
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    //return 1;
+    return 1;
   }
 
 
