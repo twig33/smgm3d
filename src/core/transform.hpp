@@ -2,11 +2,14 @@
 #define TRANSFORM_HPP_
 
 #include <glm/glm.hpp>
+#include "map.hpp"
 
 class Transform {
 public:
   glm::mat4 LocalToWorld() const;
 
+  void SetParent(Transform* parent);
+  
   void SetPosition (glm::vec3 p);
   glm::vec3 GetPosition() const;
   void SetEulerAngles (glm::vec3 r);
@@ -18,10 +21,17 @@ public:
   void RotateEulerAngles(glm::vec3 r);
   void Scale(glm::vec3 s);
 private:
-  void UpdateModel();
+  void AddChild(Transform* child); //this doesn't perform any safety checks to prevent pointer loops
   
+  void UpdateModel(bool updateLocal = true);
+  long GetChildIndex(Transform* p);
+  
+  std::vector<Transform*> children;
+  Transform* parent = NULL;
+  
+  glm::mat4 localModel = glm::mat4(1.0f); //transformations relative to parent
   glm::mat4 model = glm::mat4(1.0f);
-
+  
   glm::mat4 positionMat = glm::mat4(1.0f);
   glm::mat4 rotationMat = glm::mat4(1.0f);
   glm::mat4 scaleMat = glm::mat4(1.0f);

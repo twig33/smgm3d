@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "transform.hpp"
+#include "output.hpp"
 
 static void EulerAnglesMod360(glm::vec3& eulerAngles){
   eulerAngles.x = fmod(eulerAngles.x, 360);
@@ -16,8 +17,20 @@ glm::mat4 Transform::LocalToWorld() const {
   return model;
 }
 
-void Transform::UpdateModel() {
-  model = positionMat * rotationMat * scaleMat;
+void Transform::UpdateModel(bool updateLocal) {
+  if (updateLocal)
+    localModel = positionMat * rotationMat * scaleMat;
+  
+  if (parent){
+    model = parent->LocalToWorld() * localModel;
+  }
+  else {
+    model = localModel;
+  }
+
+  for (int i = 0; i < children.size(); ++i){
+    children[i]->UpdateModel(false);
+  }
 }
 
 void Transform::SetPosition (glm::vec3 p){
@@ -72,4 +85,33 @@ void Transform::Scale(glm::vec3 s) {
   scale += s;
   scaleMat = glm::scale(scaleMat, s);
   UpdateModel();
+}
+
+long Transform::GetChildIndex(Transform* p){
+  for (std::size_t i = 0; i < children.size(); ++i){
+    if (children[i] == p){
+      return i;
+    }
+  }
+  return -1;
+}
+
+void Transform::AddChild(Transform* p){
+  if (GetChildIndex(p) != -1){
+    return;
+  }
+  children.push_back(p);
+  p->SetParent(this);
+}
+
+void Transform::SetParent(Transform* p){
+  Transform* i = this;
+  while ((i = i->parent) && i != NULL){
+    if (i == p){
+      return;
+    }
+  }
+  
+  parent = p;
+  parent->AddChild(this);
 }

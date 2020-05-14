@@ -80,6 +80,10 @@ namespace Graphics {
   int CreateRenderable(const char* mesh, const char* texture){
     return objects.Insert(Renderable(VAOs[mesh], Resources::GetTexture(texture), Resources::GetMeshData(mesh).numIndices));
   }
+
+  void DestroyRenderable(int id){
+    objects.EraseByKey(id);
+  }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
     static const std::string p = "Graphics::Init::";

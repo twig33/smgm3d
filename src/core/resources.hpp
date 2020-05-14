@@ -12,8 +12,6 @@ namespace Resources {
     GLuint EBO;
     unsigned long numIndices;
   };
-  static const char* const resourcesCFGPath = "resources.cfg";
-  
   const std::vector<std::string>& MeshNames();
   const std::vector<std::string>& TextureNames();
   unsigned long MeshCount();

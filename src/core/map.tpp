@@ -74,5 +74,5 @@ void IntMap<T>::EraseByKey(unsigned int key){
     Output::stream << "IntMap::EraseByKey object already removed or wasnt ever inserted\n";
     return;
   }
-  vec.erase(vec.begin() + index);
+  erase(index);
 }

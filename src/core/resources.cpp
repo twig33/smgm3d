@@ -90,7 +90,7 @@ namespace Resources {
 	else if (header == "vt"){
 	  float x, y;
 	  iss >> x >> y; 
-	  UVCoords.push_back(glm::vec2(x, y));
+	  UVCoords.push_back(glm::vec2(x, 1.0f - y));
 	}
 	//a triangle
 	//one indice is formatted like x/y/... where x is the vertex coord num and y is the uv coord num, which start from 1
