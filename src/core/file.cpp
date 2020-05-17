@@ -10,12 +10,12 @@ int FileExists(const char* path){
 
 int ReadFileSize(const char* path, unsigned long* size){
   /* Open the file for reading */
-  std::ifstream fs(path);
+  std::ifstream fs(path, std::ifstream::ate | std::ifstream::binary);
   if (!fs)
     return 0;
 
-  fs.seekg(0, std::ios::end);
   *size = fs.tellg();
+  ++(*size);
 
   fs.close();
 
