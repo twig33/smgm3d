@@ -8,6 +8,8 @@ project(smgm3d)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+set(OpenGL_GL_PREFERENCE GLVND)
+
 find_package(GLFW3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
@@ -22,11 +24,16 @@ file(GLOB resources ${PROJECT_SOURCE_DIR}/res/*)
 
 set(sources ${thirdparty_sources} ${core_sources} ${main_sources})
 
+set(libraries ${GLFW3_LIBRARY})
+if (UNIX)
+   set(libraries ${libraries} dl)
+endif()
+
 set (CMAKE_CXX_STANDARD 11)
 add_executable(smgm3d ${sources})
 #set_target_properties(smgm3d PROPERTIES COMPILE_OPTIONS "-m32" LINK_OPTIONS "-m32")
 
-target_link_libraries(smgm3d ${GLFW3_LIBRARY})
+target_link_libraries(smgm3d ${libraries})
 
 file(COPY ${resources} DESTINATION ${PROJECT_BINARY_DIR})
 
