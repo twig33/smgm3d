@@ -7,6 +7,8 @@
 namespace Graphics {
   int CreateRenderable(const char* mesh, const char* texture);
   void DestroyRenderable(int id);
+
+  Transform& Camera();
   void UpdateModel(int id, glm::mat4 model);
   GLFWwindow* GetWindow();
   int WindowShouldClose();

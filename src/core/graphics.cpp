@@ -32,11 +32,13 @@ namespace Graphics {
     std::map<std::string, GLuint> VAOs;
     IntMap<Renderable> objects;
 
+    Transform camera;
+    
     /* Matrices */
     //camera
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-				 glm::vec3(0.0f, 0.0f, 0.0f),
-				 glm::vec3(0.0f, 1.0f, 0.0f));
+    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+    //				 glm::vec3(0.0f, 0.0f, 0.0f),
+    //				 glm::vec3(0.0f, 1.0f, 0.0f));
     
     glm::mat4 projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.1f, 100.0f);
 
@@ -84,6 +86,10 @@ namespace Graphics {
   void DestroyRenderable(int id){
     objects.EraseByKey(id);
   }
+
+  Transform& Camera(){
+    return camera;
+  }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
     static const std::string p = "Graphics::Init::";
@@ -124,7 +130,7 @@ namespace Graphics {
 
     glUseProgram(shaderProgram);
     
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     if (!Resources::Load()){
@@ -154,6 +160,8 @@ namespace Graphics {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    camera.SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+    
     inited = true;
     return 1;
   }
@@ -185,6 +193,9 @@ namespace Graphics {
     /* Clear the screen */
     //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    /* Set the view uniform */
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.WorldToLocal()));
     
     /* Draw */
     //glUseProgram(shaderProgram);

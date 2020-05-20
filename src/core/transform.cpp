@@ -13,21 +13,60 @@ static void EulerAnglesMod360(glm::vec3& eulerAngles){
   eulerAngles.z = fmod(eulerAngles.z, 360);
 }
 
+const glm::vec3 globalForward = glm::vec3(0.0f, 0.0f, -1.0f);
+const glm::vec3 globalLeft = glm::vec3(-1.0f, 0.0f, 0.0f);
+const glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+glm::vec3 Transform::GetForward() const {
+	return forward;
+}
+
+glm::vec3 Transform::GetLeft() const {
+	return left;
+}
+
+glm::vec3 Transform::GetUp() const {
+	return up;
+}
+
 glm::mat4 Transform::LocalToWorld() const {
   return model;
 }
 
+glm::mat4 Transform::WorldToLocal() const {
+  return glm::inverse(model);
+}
+
+glm::mat4 Transform::GetGlobalOrientation () const {
+	return globalOrientationMat;
+}
+
 void Transform::UpdateModel(bool updateLocal) {
-  if (updateLocal)
-    localModel = positionMat * rotationMat * scaleMat;
+  static glm::vec4 forward4, left4, up4;
+  
+  if (updateLocal){
+    localModel = positionMat * orientationMat * scaleMat;
+	forward4 = orientationMat * glm::vec4(globalForward, 1.0f);
+	left4 = orientationMat * glm::vec4(globalLeft, 1.0f);
+	up4 = orientationMat * glm::vec4(globalUp, 1.0f);
+  }
   
   if (parent){
     model = parent->LocalToWorld() * localModel;
+	globalOrientationMat = parent->GetGlobalOrientation() * orientationMat;
+	forward4 = parent->GetGlobalOrientation() * forward4;
+	left4 = parent->GetGlobalOrientation() * left4;
+	up4 = parent->GetGlobalOrientation() * up4;
   }
   else {
     model = localModel;
+	globalOrientationMat = orientationMat;
   }
 
+  forward = forward4;
+  left = left4;
+  up = up4;
+  
   for (int i = 0; i < children.size(); ++i){
     children[i]->UpdateModel(false);
   }
@@ -46,9 +85,9 @@ glm::vec3 Transform::GetPosition() const {
 void Transform::SetEulerAngles (glm::vec3 r){
   rotation = r;
   EulerAnglesMod360(rotation);
-  rotationMat = glm::rotate(glm::mat4(1.0f), glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
-  rotationMat = glm::rotate(rotationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
-  rotationMat = glm::rotate(rotationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0));
+  orientationMat = glm::rotate(glm::mat4(1.0f), glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
+  orientationMat = glm::rotate(orientationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
+  orientationMat = glm::rotate(orientationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0));
   UpdateModel();
 }
 
@@ -72,12 +111,19 @@ void Transform::Translate(glm::vec3 t) {
   UpdateModel();
 }
 
-void Transform::RotateEulerAngles(glm::vec3 r) {
+void Transform::RotateEulerAngles(glm::vec3 r, bool localOrientation) {
   rotation += r;
   EulerAnglesMod360(rotation);
-  rotationMat = glm::rotate(rotationMat, glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
-  rotationMat = glm::rotate(rotationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
-  rotationMat = glm::rotate(rotationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0));  
+  glm::mat4 neworientationMat;
+  neworientationMat = glm::rotate(glm::mat4(1.0f), glm::radians(r.x), glm::vec3(1.0, 0.0, 0.0));
+  neworientationMat = glm::rotate(neworientationMat, glm::radians(r.y), glm::vec3(0.0, 1.0, 0.0));
+  neworientationMat = glm::rotate(neworientationMat, glm::radians(r.z), glm::vec3(0.0, 0.0, 1.0)); 
+  if (localOrientation){
+	orientationMat = orientationMat * neworientationMat;	
+  }
+  else {
+	orientationMat = neworientationMat * orientationMat;
+  }
   UpdateModel();
 }
 

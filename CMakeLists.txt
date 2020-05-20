@@ -8,10 +8,7 @@ project(smgm3d)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set(OpenGL_GL_PREFERENCE GLVND)
-
 find_package(GLFW3 REQUIRED)
-find_package(OpenGL REQUIRED)
 
 include_directories("${PROJECT_SOURCE_DIR}/include" "${GLFW3_INCLUDE_DIR}")
 link_directories("${PROJECT_SOURCE_DIR}/lib")
