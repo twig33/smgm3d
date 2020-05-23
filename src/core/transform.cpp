@@ -14,15 +14,15 @@ static void EulerAnglesMod360(glm::vec3& eulerAngles){
 }
 
 const glm::vec3 globalForward = glm::vec3(0.0f, 0.0f, -1.0f);
-const glm::vec3 globalLeft = glm::vec3(-1.0f, 0.0f, 0.0f);
+const glm::vec3 globalRight = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 glm::vec3 Transform::GetForward() const {
 	return forward;
 }
 
-glm::vec3 Transform::GetLeft() const {
-	return left;
+glm::vec3 Transform::GetRight() const {
+	return right;
 }
 
 glm::vec3 Transform::GetUp() const {
@@ -42,12 +42,12 @@ glm::mat4 Transform::GetGlobalOrientation () const {
 }
 
 void Transform::UpdateModel(bool updateLocal) {
-  static glm::vec4 forward4, left4, up4;
+  static glm::vec4 forward4, right4, up4;
   
   if (updateLocal){
     localModel = positionMat * orientationMat * scaleMat;
 	forward4 = orientationMat * glm::vec4(globalForward, 1.0f);
-	left4 = orientationMat * glm::vec4(globalLeft, 1.0f);
+	right4 = orientationMat * glm::vec4(globalRight, 1.0f);
 	up4 = orientationMat * glm::vec4(globalUp, 1.0f);
   }
   
@@ -55,7 +55,7 @@ void Transform::UpdateModel(bool updateLocal) {
     model = parent->LocalToWorld() * localModel;
 	globalOrientationMat = parent->GetGlobalOrientation() * orientationMat;
 	forward4 = parent->GetGlobalOrientation() * forward4;
-	left4 = parent->GetGlobalOrientation() * left4;
+	right4 = parent->GetGlobalOrientation() * right4;
 	up4 = parent->GetGlobalOrientation() * up4;
   }
   else {
@@ -64,7 +64,7 @@ void Transform::UpdateModel(bool updateLocal) {
   }
 
   forward = forward4;
-  left = left4;
+  right = right4;
   up = up4;
   
   for (int i = 0; i < children.size(); ++i){

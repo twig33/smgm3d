@@ -5,7 +5,7 @@
 #include "map.hpp"
 
 extern const glm::vec3 globalForward;
-extern const glm::vec3 globalLeft;
+extern const glm::vec3 globalRight;
 extern const glm::vec3 globalUp;
 
 class Transform {
@@ -15,7 +15,7 @@ public:
   glm::mat4 GetGlobalOrientation() const;
   
   glm::vec3 GetForward() const;
-  glm::vec3 GetLeft() const;
+  glm::vec3 GetRight() const;
   glm::vec3 GetUp() const;
   
   void SetParent(Transform* parent);
@@ -52,7 +52,7 @@ private:
   glm::vec3 scale = glm::vec3(0.0f, 0.0f, 0.0f);
   
   glm::vec3 forward = globalForward;
-  glm::vec3 left = globalLeft;
+  glm::vec3 right = globalRight;
   glm::vec3 up = globalUp;
 };
 

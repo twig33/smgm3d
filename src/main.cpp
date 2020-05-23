@@ -53,7 +53,7 @@ int main()
     /* Update camera */
 	//move
     Graphics::Camera().Translate(dt * cameraSpeed * Input::GetAxis(GLFW_KEY_W, GLFW_KEY_S) * Graphics::Camera().GetForward());
-    Graphics::Camera().Translate(dt * cameraSpeed * Input::GetAxis(GLFW_KEY_A, GLFW_KEY_D) * Graphics::Camera().GetLeft());
+    Graphics::Camera().Translate(dt * cameraSpeed * Input::GetAxis(GLFW_KEY_D, GLFW_KEY_A) * Graphics::Camera().GetRight());
 	
 	//rotate based on mouse input
     double dx, dy;
