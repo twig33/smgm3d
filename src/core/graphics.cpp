@@ -160,7 +160,7 @@ namespace Graphics {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    camera.SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+    camera.Position(glm::vec3(0.0f, 0.0f, 3.0f));
     
     inited = true;
     return 1;
