@@ -6,13 +6,8 @@
 #include "core/output.hpp"
 #include "core/mysleep.h"
 
-class Object {
-public:
-  Object(int renderableID) : renderableID(renderableID) {};
-  const int renderableID;
-  Transform transform;
-};
-  
+#include "game/object.hpp"
+
 int main()
 {
   static bool quit = false;
@@ -25,10 +20,10 @@ int main()
   Graphics::SetClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   Input::Init();
 
-  Object gamer(Graphics::CreateRenderable("gamer", "knuckles-cracked"));
-  Object hand(Graphics::CreateRenderable("cube", "default"));
-  Object plane(Graphics::CreateRenderable("plane", "default"));
-  Object plane2(Graphics::CreateRenderable("plane", "concrete"));
+  Object gamer("gamer", "knuckles-cracked");
+  Object hand("cube", "default");
+  Object plane("plane", "default");
+  Object plane2("plane", "concrete");
   
   plane.transform.Translate(glm::vec3(0.0f, -2.0f, 0.0f));
   plane.transform.Scale(glm::vec3(10.0f, 10.0f, 10.0f));
@@ -87,7 +82,7 @@ int main()
 	Quaternion qGamerPitch = Quaternion::AngleAxis(gamerPitch, globalRight);
 	Quaternion qGamerYaw = Quaternion::AngleAxis(gamerYaw, globalUp);
 	
-	gamer.transform.Rotation(qGamerYaw * qGamerPitch);
+	gamer.transform.Rotation(qGamerYaw);
 	
 	/* Send model matrices to graphics */
     Graphics::UpdateModel(gamer.renderableID, gamer.transform.LocalToWorld());

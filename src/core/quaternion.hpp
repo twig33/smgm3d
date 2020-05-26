@@ -7,12 +7,13 @@
 class Quaternion {
 	public:
 		Quaternion(glm::quat quat) : quat(quat) {} ;
-		static Quaternion AngleAxis(float angle, glm::vec3 axis);
+		Quaternion() {};
+		static Quaternion AngleAxis(float degrees, glm::vec3 axis);
 		
 		glm::quat GLMQuat() const;
 		glm::mat4 GLMMat4() const;
 	private:
-		glm::quat quat;
+		glm::quat quat = glm::quat(1, 0, 0, 0);
 };
 
 Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs);
