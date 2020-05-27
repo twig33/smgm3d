@@ -13,7 +13,9 @@ find_package(GLFW3 REQUIRED)
 include_directories("${PROJECT_SOURCE_DIR}/include" "${GLFW3_INCLUDE_DIR}")
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 
-file(GLOB core_sources ${PROJECT_SOURCE_DIR}/src/core/*.cpp)
+file(GLOB core_sources ${PROJECT_SOURCE_DIR}/src/core/*.cpp
+     ${PROJECT_SOURCE_DIR}/src/core/graphics/*.cpp
+     ${PROJECT_SOURCE_DIR}/src/core/util/*.cpp)
 file(GLOB game_sources ${PROJECT_SOURCE_DIR}/src/game/*.cpp)
 file(GLOB main_sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB thirdparty_sources ${PROJECT_SOURCE_DIR}/src/third-party/*.c)

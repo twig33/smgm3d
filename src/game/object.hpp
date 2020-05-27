@@ -7,6 +7,7 @@
 class Object {
 	public:
 		Object(const char* obj, const char* texture);
+		void PushModelToGraphics();
 		Transform transform;
 		const int renderableID;
 };

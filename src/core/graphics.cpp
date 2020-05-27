@@ -8,14 +8,16 @@
 
 #include "graphics.hpp"
 #include "resources.hpp"
-#include "shader.hpp"
+#include "graphics/shader.hpp"
 #include "output.hpp"
 #include "map.hpp"
 
 namespace Graphics {
 
   namespace { //private
-
+	unsigned int windowWidth;
+	unsigned int windowHeight;
+	
     static bool inited = false;
     static GLFWwindow* window;
 
@@ -62,7 +64,7 @@ namespace Graphics {
       window = glfwCreateWindow(width, height, "smgm3d", NULL, NULL);
       
       if (!window)
-	return 0;
+		return 0;
 
       /* Make the window's context current */
       glfwMakeContextCurrent(window);
@@ -70,6 +72,8 @@ namespace Graphics {
       /* Set a callback for when the window gets resized */
       glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
       
+	  windowWidth = width;
+	  windowHeight = height;
       return 1;
     }
 
@@ -89,6 +93,11 @@ namespace Graphics {
 
   Transform& Camera(){
     return camera;
+  }
+  
+  void GetWindowSize(unsigned int* width, unsigned int* height){
+	  *width = windowWidth;
+	  *height = windowHeight;
   }
   
   int Init(unsigned int windowWidth, unsigned int windowHeight){
@@ -114,6 +123,7 @@ namespace Graphics {
 
     glViewport(0, 0, windowWidth, windowHeight);
     glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
     //glfwSwapInterval(0);
     
     /* Initialize shader */

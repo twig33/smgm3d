@@ -9,6 +9,7 @@ namespace Graphics {
   void DestroyRenderable(int id);
 
   Transform& Camera();
+  void GetWindowSize(unsigned int* width, unsigned int* height);
   void UpdateModel(int id, glm::mat4 model);
   GLFWwindow* GetWindow();
   int WindowShouldClose();

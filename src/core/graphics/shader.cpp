@@ -1,8 +1,8 @@
 #include <stdexcept>
 #include <glad/glad.h>
 #include "shader.hpp"
-#include "file.hpp"
-#include "output.hpp"
+#include "../util/file.hpp"
+#include "../output.hpp"
 
 GLint GetUniformLocation(GLuint program, const char* name){
   int loc = glGetUniformLocation(program, name);

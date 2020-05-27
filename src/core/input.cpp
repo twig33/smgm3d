@@ -7,10 +7,9 @@ namespace Input {
 
   namespace { //private
     static GLFWwindow* window;
-
-    bool firstFrame = true;
-    double mouseOldX = 0;
-    double mouseOldY = 0;
+	unsigned int width, height;
+    
+	bool firstFrame = true;
 	double lastDeltaX = 0;
 	double lastDeltaY = 0;
 	
@@ -19,15 +18,9 @@ namespace Input {
 		double mouseNewX;
 		double mouseNewY;
 		glfwGetCursorPos(window, &mouseNewX, &mouseNewY);
-		if (!firstFrame){
-		  lastDeltaX = mouseNewX - mouseOldX;
-		  lastDeltaY = mouseNewY - mouseOldY;
-		}
-		else {
-		  firstFrame = false;
-		}
-		mouseOldX = mouseNewX;
-		mouseOldY = mouseNewY;
+		lastDeltaX = xpos - width/2;
+		lastDeltaY = ypos - height/2;
+		glfwSetCursorPos(Graphics::GetWindow(), width/2, height/2);
 	}
   }
 
@@ -54,6 +47,10 @@ namespace Input {
     assert(Graphics::Inited());
 
     window = Graphics::GetWindow();
+	Graphics::GetWindowSize(&width, &height);
+	glfwSetInputMode(Graphics::GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//if (glfwRawMouseMotionSupported())
+		//glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSetCursorPosCallback(window, cursor_position_callback);
 	
     return 1;
