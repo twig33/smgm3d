@@ -7,6 +7,8 @@ namespace Input {
   void GetMouseDelta(double* dx, double* dy);
   //returns true if key is pressed
   bool GetKey(int key);
+  //returns true if key was released
+  bool GetKeyDown(int key);
   int Init();
   int Quit();
 }

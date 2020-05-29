@@ -1,4 +1,4 @@
 cap cap.obj
 gamer gamer.obj
-cube triangle.obj
+cube cube.obj
 plane plane.obj

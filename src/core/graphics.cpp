@@ -1,5 +1,6 @@
 #include <map>
 #include <vector>
+#include <math.h>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -42,7 +43,7 @@ namespace Graphics {
     //				 glm::vec3(0.0f, 0.0f, 0.0f),
     //				 glm::vec3(0.0f, 1.0f, 0.0f));
     
-    glm::mat4 projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(75.0f), 1.0f, 0.01f, 10000.0f);
 
     /* Shader */
     static GLuint shaderProgram;
@@ -123,6 +124,8 @@ namespace Graphics {
 
     glViewport(0, 0, windowWidth, windowHeight);
     glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glEnable(GL_CULL_FACE);
     //glfwSwapInterval(0);
     

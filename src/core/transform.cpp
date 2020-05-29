@@ -17,6 +17,10 @@ const glm::vec3 globalForward = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 globalRight = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+void Transform::Apply(){
+	UpdateModel();
+}
+
 glm::vec3 Transform::Forward() const {
 	return forward;
 }
@@ -71,7 +75,6 @@ void Transform::UpdateModel(bool updateLocal) {
 void Transform::Position (glm::vec3 p){
   position = p;
   positionMat = glm::translate(glm::mat4(1.0f), p);
-  UpdateModel();
 }
 
 glm::vec3 Transform::Position() const {
@@ -89,7 +92,6 @@ glm::vec3 Transform::LocalEulerAngles() const {
 void Transform::Scale (glm::vec3 s) {
   scale = s;
   scaleMat = glm::scale(glm::mat4(1.0f), s);
-  UpdateModel();
 }
 
 glm::vec3 Transform::Scale() const {
@@ -99,12 +101,10 @@ glm::vec3 Transform::Scale() const {
 void Transform::Translate(glm::vec3 t) {
   position += t;
   positionMat = glm::translate(positionMat, t);
-  UpdateModel();
 }
 
 void Transform::LocalRotation(Quaternion quat){
   localOrientation = quat;
-  UpdateModel();
 }
 
 void Transform::Rotation(Quaternion quat){
@@ -115,7 +115,6 @@ void Transform::Rotation(Quaternion quat){
   else {
     localOrientation = quat;
   }
-  UpdateModel();
 }
   
 Quaternion Transform::LocalRotation() const {

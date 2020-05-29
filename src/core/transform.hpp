@@ -12,6 +12,8 @@ extern const glm::vec3 globalUp;
 
 class Transform {
 public:
+  void Apply();
+  
   glm::mat4 LocalToWorld() const;
   glm::mat4 WorldToLocal() const;
   

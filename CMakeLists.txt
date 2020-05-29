@@ -18,11 +18,12 @@ file(GLOB core_sources ${PROJECT_SOURCE_DIR}/src/core/*.cpp
      ${PROJECT_SOURCE_DIR}/src/core/util/*.cpp)
 file(GLOB game_sources ${PROJECT_SOURCE_DIR}/src/game/*.cpp)
 file(GLOB main_sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB physics_sources ${PROJECT_SOURCE_DIR}/src/physics/*.cpp)
 file(GLOB thirdparty_sources ${PROJECT_SOURCE_DIR}/src/third-party/*.c)
 
 file(GLOB resources ${PROJECT_SOURCE_DIR}/res/*)
 
-set(sources ${thirdparty_sources} ${core_sources} ${game_sources} ${main_sources})
+set(sources ${thirdparty_sources} ${core_sources} ${physics_sources} ${game_sources} ${main_sources})
 
 set(libraries ${GLFW3_LIBRARY})
 if (UNIX)
