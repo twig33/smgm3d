@@ -15,25 +15,22 @@ int main()
   static bool quit = false;
   static const float turningSpeed = 70.0f;
   static const float cameraSpeed = 5.0f;
-  static const float g = 0.04f;
-  static const float jumpVo = 0.01f;
+  static const float g = 240.0f;
+  static const float jumpVo = 40.0f;
   static const float gamerSpeed = 5.0f;
   static const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-
   Graphics::Init(800, 600);
   Graphics::SetClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   Input::Init();
 
   Object gamer("gamer", "knuckles-cracked");
   gamer.transform.Scale(scale);
-  gamer.Collider(Physics::AABB(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 4.0f, 2.0f)));
-  Graphics::Camera().Parent(&gamer.transform);
-  Graphics::Camera().Translate(glm::vec3(0.0f, 7.0f, 10.0f));
+  gamer.Collider(Physics::AABB(true, glm::vec3(2.0f, 4.0f, 2.0f)));
   
   Object plane2("plane", "default");
   plane2.transform.Scale(glm::vec3(10.0f, 1.0f, 10.0f));
   plane2.transform.Translate(glm::vec3(0.0f, -5.0f, 0.0f));
-  plane2.Collider(Physics::AABB(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 1.0f, 2.0f)));
+  plane2.Collider(Physics::AABB(glm::vec3(2.0f, 1.0f, 2.0f)));
   plane2.Update();
   
   Object plane("plane", "concrete");
@@ -42,9 +39,16 @@ int main()
   plane.transform.Translate(glm::vec3(0.0f, 0.0f, -20.0f));
   plane.Update();
   
+  Transform cameraAnchor;
+
+  Graphics::Camera().Parent(&cameraAnchor);
+  Graphics::Camera().Translate(glm::vec3(0.0f, 9.0f, 8.0f));
+  
   float lastTime = glfwGetTime() - 1.0f/60.0f;
   
   float cameraPitch = -25.0f;
+  float gamerScale = 1.0f;
+  float gamerScalingSpeed = 5.0f;
   float gamerYaw = 0.0f;
   float gamerSpeedY = 0.0f;
   
@@ -77,16 +81,27 @@ int main()
 	}
 	gamer.transform.Translate(Input::GetAxis(GLFW_KEY_W, GLFW_KEY_S) * dt * gamerSpeed * gamer.transform.Forward());
 	gamer.transform.Translate(Input::GetAxis(GLFW_KEY_D, GLFW_KEY_A) * dt * gamerSpeed * gamer.transform.Right());
-	gamer.transform.Translate(gamerSpeedY * gamer.transform.Up());	
+	gamer.transform.Translate(gamerSpeedY * gamer.transform.Up() * dt);	
+	//scale gamer
+	gamerScale += gamerScalingSpeed * dt;
+	if (gamerScale > 3.0f || gamerScale < 0.2f){
+		gamerScalingSpeed = -gamerScalingSpeed;
+	}
+	gamer.transform.Scale(glm::vec3(1.0f, 1.0f, gamerScale));
+	//Graphics::Camera().Scale(glm::vec3(1.0f, 1.0f, 1.0f));
 	//apply
 	gamer.Update();
+	
+	cameraAnchor.Position(gamer.transform.Position());
+	cameraAnchor.LocalRotation(gamer.transform.Rotation());
+	cameraAnchor.Apply();
 	
 	//rotate camera
 	cameraPitch += Input::GetAxis(GLFW_KEY_UP, GLFW_KEY_DOWN) * turningSpeed * dt;
 	if (cameraPitch > 20.0f)
-      cameraPitch = 20.0f;
+       cameraPitch = 20.0f;
 	if (cameraPitch < -45.0f)
-      cameraPitch = -45.0f;
+       cameraPitch = -45.0f;
 	
 	Graphics::Camera().LocalRotation(Quaternion::AngleAxis(cameraPitch, globalRight));
 	
@@ -95,8 +110,8 @@ int main()
 	
 	if (Input::GetKeyDown(GLFW_KEY_F12)){
       if (toggle){
-		  gamer.ShowCollider();
 		  plane2.ShowCollider();
+		  gamer.ShowCollider();
 	  }
 	  else {
 		  gamer.HideCollider();

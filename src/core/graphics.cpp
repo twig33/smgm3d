@@ -172,9 +172,10 @@ namespace Graphics {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	
 
     camera.Position(glm::vec3(0.0f, 0.0f, 3.0f));
-    
+
     inited = true;
     return 1;
   }

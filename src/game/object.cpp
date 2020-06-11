@@ -10,7 +10,7 @@ Object::Object(const char* obj, const char* texture) : renderableID(Graphics::Cr
 
 void Object::Update(){
   transform.Apply();
-  collider.Transform(transform.LocalToWorld());
+  collider.Transform(transform.LocalToWorld(), transform.Scale());
   UpdateGraphics();
 }
 

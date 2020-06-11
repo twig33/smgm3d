@@ -7,12 +7,6 @@
 #include "transform.hpp"
 #include "output.hpp"
 
-static void EulerAnglesMod360(glm::vec3& eulerAngles){
-  eulerAngles.x = fmod(eulerAngles.x, 360);
-  eulerAngles.y = fmod(eulerAngles.y, 360);
-  eulerAngles.z = fmod(eulerAngles.z, 360);
-}
-
 const glm::vec3 globalForward = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 globalRight = glm::vec3(1.0f, 0.0f, 0.0f);
 const glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -45,7 +39,7 @@ void Transform::UpdateModel(bool updateLocal) {
   glm::vec4 forward4, right4, up4;
   
   if (updateLocal){
-    localModel = positionMat * localOrientation.GLMMat4() * scaleMat;
+    localModel = localPositionMat * localOrientation.GLMMat4() * localScaleMat;
 	forward4 = localOrientation.GLMMat4() * glm::vec4(globalForward, 1.0f);
 	right4 = localOrientation.GLMMat4() * glm::vec4(globalRight, 1.0f);
 	up4 = localOrientation.GLMMat4() * glm::vec4(globalUp, 1.0f);
@@ -72,9 +66,28 @@ void Transform::UpdateModel(bool updateLocal) {
   }
 }
 
+void Transform::LocalPosition (glm::vec3 p){
+  if (parent) {
+    position = parent->Position() + p;
+  }
+  else {
+    position = p;
+  }
+  localPosition = p;
+  localPositionMat = glm::translate(glm::mat4(1.0f), localPosition);
+}
+
 void Transform::Position (glm::vec3 p){
-  position = p;
-  positionMat = glm::translate(glm::mat4(1.0f), p);
+  if (parent){
+    LocalPosition(p - parent->Position());
+  }
+  else {
+    LocalPosition(p);
+  }
+}
+
+glm::vec3 Transform::LocalPosition() const {
+  return localPosition;
 }
 
 glm::vec3 Transform::Position() const {
@@ -89,9 +102,28 @@ glm::vec3 Transform::LocalEulerAngles() const {
   return glm::eulerAngles(localOrientation.GLMQuat());
 }
 
+void Transform::LocalScale (glm::vec3 s){
+	localScale = s;
+	if (parent) {
+		scale = localScale * parent->Scale();
+	}
+	else {
+		scale = s;
+	}
+	localScaleMat = glm::scale(glm::mat4(1.0f), localScale);
+}
+
 void Transform::Scale (glm::vec3 s) {
-  scale = s;
-  scaleMat = glm::scale(glm::mat4(1.0f), s);
+  if (parent && parent->Scale().x != 0 && parent->Scale().y != 0 && parent->Scale().z != 0){
+    LocalScale(s * (glm::vec3(1.0f, 1.0f, 1.0f) / parent->Scale()));
+  }
+  else {
+    LocalScale(s);
+  }
+}
+
+glm::vec3 Transform::LocalScale() const {
+	return localScale;
 }
 
 glm::vec3 Transform::Scale() const {
@@ -100,7 +132,8 @@ glm::vec3 Transform::Scale() const {
 
 void Transform::Translate(glm::vec3 t) {
   position += t;
-  positionMat = glm::translate(positionMat, t);
+  localPosition += t;
+  localPositionMat = glm::translate(localPositionMat, t);
 }
 
 void Transform::LocalRotation(Quaternion quat){
